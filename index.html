@@ -103,48 +103,50 @@
 
 <script>
     // --- 1. Hardcoded Data from Image ---
+    // Note: 'url' currently points to the base staffbase app as per the image.
+    // Ensure the CSV data you upload eventually has the specific deep links.
     const taskData = [
         {
             group: "Reset Spotlight Features",
             name: "Spotlight Feature Listing",
             due: "1/26/26",
             desc: "",
-            url: "https://app.staffbase.com/"
+            url: "https://app.staffbase.com/startup"
         },
         {
             group: "Reset Spotlight Features",
             name: "Feature Map",
             due: "1/29/26",
             desc: "",
-            url: "https://app.staffbase.com/"
+            url: "https://app.staffbase.com/startup"
         },
         {
             group: "Rest BAM Best Sellers",
             name: "Best Sellers - In Section",
             due: "1/30/26",
             desc: "",
-            url: "https://app.staffbase.com/"
+            url: "https://app.staffbase.com/startup"
         },
         {
             group: "Rest BAM Best Sellers",
             name: "Best Sellers - Focal Wall",
             due: "1/30/26",
             desc: "",
-            url: "https://app.staffbase.com/"
+            url: "https://app.staffbase.com/startup"
         },
         {
             group: "Update Store Discounts",
             name: "Promotional List - Book - Existing",
             due: "2/1/26",
             desc: "",
-            url: "https://app.staffbase.com/"
+            url: "https://app.staffbase.com/startup"
         },
         {
             group: "Update Store Discounts",
             name: "Promotional List - Book - Changes",
             due: "2/1/26",
             desc: "",
-            url: "https://app.staffbase.com/"
+            url: "https://app.staffbase.com/startup"
         }
     ];
 
@@ -175,7 +177,10 @@
                 // Handle Links
                 let titleHtml = task.name;
                 if (task.url) {
-                    titleHtml = `<a href="${task.url}" target="_blank" rel="noopener noreferrer">${task.name}</a>`;
+                    // FIX APPLIED HERE:
+                    // target="_top" forces the link to navigate the parent window (the App itself)
+                    // rather than trying to open a new tab (_blank) or stuck in the widget frame (_self).
+                    titleHtml = `<a href="${task.url}" target="_top">${task.name}</a>`;
                 }
 
                 html += `
