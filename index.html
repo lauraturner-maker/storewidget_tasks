@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks Preview</title>
+    <style>
+        /* --- Global Reset & Variables --- */
+        :root {
+            --primary: #2c3e50;
+            --accent: #e74c3c;
+            --bg: #ffffff;
+            --border: #ddd;
+        }
+        
+        body { 
+            margin: 0; padding: 20px; 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: #f4f6f8; 
+            color: #333;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* --- WIDGET PREVIEW SECTION --- */
+        .preview-container {
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .widget-header { 
+            background: var(--primary); color: white; 
+            padding: 12px 15px; display: flex; 
+            justify-content: space-between; align-items: center; 
+        }
+        
+        .store-badge { 
+            background: var(--accent); padding: 4px 8px; 
+            border-radius: 4px; font-size: 0.7em; 
+            font-weight: bold; text-transform: uppercase; 
+        }
+        
+        .widget-content { padding: 15px; }
+        
+        .group-header {
+            color: var(--primary); font-size: 0.85em; font-weight: 800; 
+            text-transform: uppercase; letter-spacing: 0.5px;
+            border-bottom: 2px solid #eee; margin: 15px 0 10px 0; padding-bottom: 4px;
+        }
+
+        /* Task Items */
+        .task-card {
+            background: white; border: 1px solid #eee; 
+            border-left: 4px solid var(--accent);
+            border-radius: 6px; padding: 10px; margin-bottom: 8px;
+        }
+        
+        .task-row { display: flex; gap: 10px; align-items: flex-start; }
+        .task-check { width: 18px; height: 18px; cursor: pointer; margin-top: 2px; accent-color: var(--primary); }
+        .task-details { flex: 1; }
+        
+        .task-meta { display: flex; justify-content: space-between; font-size: 0.75em; color: #999; margin-bottom: 2px; }
+        
+        /* Link Styling */
+        .task-title { font-weight: 700; color: #333; font-size: 0.95em; margin-bottom: 2px; }
+        .task-title a { 
+            color: #2c3e50; 
+            text-decoration: none; 
+            border-bottom: 1px dotted #333; 
+            cursor: pointer;
+        }
+        .task-title a:hover { 
+            color: var(--accent); 
+            border-bottom: 1px solid var(--accent); 
+        }
+        
+        .task-desc { font-size: 0.85em; color: #666; line-height: 1.3; margin-top: 2px; }
+
+        /* Completed State */
+        .task-card.completed { border-left-color: #bdc3c7; background: #fafafa; opacity: 0.6; }
+        .task-card.completed .task-title, 
+        .task-card.completed .task-desc { text-decoration: line-through; color: #bdc3c7; }
+        .task-card.completed a { pointer-events: none; }
+
+        .empty-state { text-align: center; color: #999; padding: 20px; font-style: italic; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+    <div class="preview-container">
+        <div class="widget-header">
+            <span>My Tasks</span>
+            <span id="widgetBadge" class="store-badge">Active Tasks</span>
+        </div>
+        <div id="widgetContent" class="widget-content">
+            </div>
+    </div>
+
+<script>
+    // --- 1. Hardcoded Data from Image ---
+    const taskData = [
+        {
+            group: "Reset Spotlight Features",
+            name: "Spotlight Feature Listing",
+            due: "1/26/26",
+            desc: "",
+            url: "https://app.staffbase.com/"
+        },
+        {
+            group: "Reset Spotlight Features",
+            name: "Feature Map",
+            due: "1/29/26",
+            desc: "",
+            url: "https://app.staffbase.com/"
+        },
+        {
+            group: "Rest BAM Best Sellers",
+            name: "Best Sellers - In Section",
+            due: "1/30/26",
+            desc: "",
+            url: "https://app.staffbase.com/"
+        },
+        {
+            group: "Rest BAM Best Sellers",
+            name: "Best Sellers - Focal Wall",
+            due: "1/30/26",
+            desc: "",
+            url: "https://app.staffbase.com/"
+        },
+        {
+            group: "Update Store Discounts",
+            name: "Promotional List - Book - Existing",
+            due: "2/1/26",
+            desc: "",
+            url: "https://app.staffbase.com/"
+        },
+        {
+            group: "Update Store Discounts",
+            name: "Promotional List - Book - Changes",
+            due: "2/1/26",
+            desc: "",
+            url: "https://app.staffbase.com/"
+        }
+    ];
+
+    // --- 2. Render Logic ---
+    function renderWidget(tasks) {
+        const container = document.getElementById('widgetContent');
+        container.innerHTML = ''; 
+
+        if(tasks.length === 0) {
+            container.innerHTML = '<div class="empty-state">No tasks assigned.</div>';
+            return;
+        }
+
+        // Group tasks by "Group Name"
+        const groups = {};
+        tasks.forEach(t => {
+            if(!groups[t.group]) groups[t.group] = [];
+            groups[t.group].push(t);
+        });
+
+        // Generate HTML
+        for(const [grp, items] of Object.entries(groups)) {
+            let html = `<div class="group-header">${grp}</div>`;
+            
+            items.forEach((task, idx) => {
+                const uniqueId = `task-${grp.replace(/\s+/g,'')}-${idx}`;
+                
+                // Handle Links
+                let titleHtml = task.name;
+                if (task.url) {
+                    titleHtml = `<a href="${task.url}" target="_blank" rel="noopener noreferrer">${task.name}</a>`;
+                }
+
+                html += `
+                <div class="task-card" id="card-${uniqueId}">
+                    <div class="task-row">
+                        <input type="checkbox" class="task-check" 
+                               onchange="toggleTask('${uniqueId}')">
+                        <div class="task-details">
+                            <div class="task-meta">
+                                <span>PENDING</span>
+                                <span>${task.due}</span>
+                            </div>
+                            <div class="task-title">${titleHtml}</div>
+                            ${task.desc ? `<div class="task-desc">${task.desc}</div>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML += html;
+        }
+    }
+
+    // --- 3. Interaction Logic ---
+    window.toggleTask = function(id) {
+        const card = document.getElementById(`card-${id}`);
+        if(card) {
+            card.classList.toggle('completed');
+        }
+    }
+
+    // Initialize on load
+    renderWidget(taskData);
+
+</script>
+
+</body>
+</html>
